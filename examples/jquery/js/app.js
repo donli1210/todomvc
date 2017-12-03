@@ -70,7 +70,10 @@ jQuery(function ($) {
 			$('#toggle-all').prop('checked', this.getActiveTodos().length === 0);
 			this.renderFooter();
 			$('#new-todo').focus();
-			util.store('todos-jquery', this.todos);
+
+			// Should not involve data storage in the render function. Single responsibility Pattern. SOLID
+			// refactor util.store to function updateData().
+			//util.store('todos-jquery', this.todos);
 		},
 		renderFooter: function () {
 			var todoCount = this.todos.length;
@@ -91,6 +94,7 @@ jQuery(function ($) {
 				todo.completed = isChecked;
 			});
 
+			this.updateData();
 			this.render();
 		},
 		getActiveTodos: function () {
@@ -132,6 +136,10 @@ jQuery(function ($) {
 				}
 			}
 		},
+		updateData: function () {
+
+			util.store('todos-jquery', this.todos);
+		},
 		create: function (e) {
 			var $input = $(e.target);
 			var val = $input.val().trim();
@@ -148,11 +156,13 @@ jQuery(function ($) {
 
 			$input.val('');
 
+			this.updateData();
 			this.render();
 		},
 		toggle: function (e) {
 			var i = this.indexFromEl(e.target);
 			this.todos[i].completed = !this.todos[i].completed;
+			this.updateData();
 			this.render();
 		},
 		edit: function (e) {
@@ -183,11 +193,12 @@ jQuery(function ($) {
 			} else {
 				this.todos[this.indexFromEl(el)].title = val;
 			}
-
+			this.updateData();
 			this.render();
 		},
 		destroy: function (e) {
 			this.todos.splice(this.indexFromEl(e.target), 1);
+			this.updateData();
 			this.render();
 		}
 	};
